@@ -26,8 +26,11 @@ export default function () {
             this.lastSuiteName = name;
         },
 
-        reportTestDone (name, testRunInfo) {
+        reportTestStart: function reportTestStart(name, meta) {
             this.write('##teamcity[testStarted name=\'' + escape(name) + '\']').newline();
+        },
+
+        reportTestDone (name, testRunInfo) {
             if (testRunInfo.skipped) {
                 this.skipped++;
                 this.write('##teamcity[testIgnored name=\'' + escape(name) + '\' message=\'skipped\']').newline();
