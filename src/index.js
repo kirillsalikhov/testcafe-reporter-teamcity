@@ -26,11 +26,8 @@ export default function () {
             this.lastSuiteName = name;
         },
 
-        reportTestStart: function reportTestStart(name, meta) {
+        reportTestDone (name, testRunInfo, meta) {
             this.write('##teamcity[testStarted name=\'' + escape(name) + '\']').newline();
-        },
-
-        reportTestDone (name, testRunInfo) {
             if (testRunInfo.skipped) {
                 this.skipped++;
                 this.write('##teamcity[testIgnored name=\'' + escape(name) + '\' message=\'skipped\']').newline();
@@ -44,6 +41,13 @@ export default function () {
                     'details=\'' + escape(this.renderErrors(testRunInfo.errs)) + '\']').newline();
 
             }
+
+            if (meta.reporterExtra) {
+                meta.reporterExtra.forEach((metaData) => {
+                    this._writeMetaData(metaData);
+                });
+            }
+
             this.write('##teamcity[testFinished name=\'' + escape(name) + '\' duration=\'' + testRunInfo.durationMs + '\']').newline();
         },
 
@@ -64,6 +68,11 @@ export default function () {
         renderErrors (errors) {
             return errors.reduce((string, err) => string + '\n' + this.formatError(err, '') + '\n\n', "");
         },
+
+        _writeMetaData({name, type, value}) {
+            this.write(`##teamcity[testMetadata name='${name}' type='${type}' value='${value}']`)
+                .newline();
+        }
     };
 }
 
