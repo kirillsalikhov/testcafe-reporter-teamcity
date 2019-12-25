@@ -1,3 +1,5 @@
+const path = require('path');
+
 export default function () {
     return {
         noColors: true,
@@ -70,6 +72,12 @@ export default function () {
         },
 
         _writeMetaData({name, type, value}) {
+            // Force posix paths as our teamcity server is on linux
+            // and can't read windows meta data
+            if (type === 'image' && path.sep === "\\") {
+                value = value.split(path.sep).join('/');
+            }
+
             this.write(`##teamcity[testMetadata name='${name}' type='${type}' value='${value}']`)
                 .newline();
         }
